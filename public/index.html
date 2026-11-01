@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FINA Dražbe Plus - Pametni Očevidnik nekretnina</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-gavel"></i>
+        </div>
+        <div>
+          <h1 class="brand-title">FINA Dražbe <span class="badge-plus">PLUS</span></h1>
+          <p class="brand-subtitle">Poboljšani preglednik javnih dražbi i nekretnina u Hrvatskoj</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="status-indicator" id="statusIndicator">
+          <span class="status-dot"></span>
+          <span id="statusText">Učitavanje podataka...</span>
+        </div>
+        <button id="refreshBtn" class="btn btn-outline" title="Dohvati najnovije podatke s FINA-e">
+          <i class="fa-solid fa-arrows-rotate"></i>
+          <span>Osvježi podatke</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Navigation Tabs -->
+  <nav class="nav-tabs-wrapper">
+    <div class="container nav-tabs-container">
+      <button class="nav-tab active" data-tab="all" id="tabAll">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Sve aktivne dražbe</span>
+        <span class="tab-badge" id="countAll">0</span>
+      </button>
+      <button class="nav-tab" data-tab="favorites" id="tabFavorites">
+        <i class="fa-solid fa-star star-fav"></i>
+        <span>Omiljeno</span>
+        <span class="tab-badge tab-badge-fav" id="countFav">0</span>
+      </button>
+
+      <div class="active-rule-pill" title="Automatski filtriramo sve dražbe kojima je prošao rok za uplatu jamčevine">
+        <i class="fa-solid fa-shield-check"></i>
+        <span>Samo aktivni oglasi (jamčevina otvorena)</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Filter & Search Section -->
+  <section class="filters-section">
+    <div class="container">
+      <div class="filter-card">
+        
+        <!-- Search and Quick Filters Row -->
+        <div class="filter-row-top">
+          <!-- Search Box -->
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="searchInput" placeholder="Pretraži po gradu, adresi, broju spisa, sudu, opisu...">
+            <button id="clearSearchBtn" class="clear-search-btn" title="Očisti pretragu" style="display: none;">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <!-- Multi-County Trigger Button -->
+          <div class="county-selector-wrapper">
+            <button id="countyDropdownBtn" class="btn btn-dropdown">
+              <i class="fa-solid fa-map-location-dot"></i>
+              <span id="countyDropdownLabel">Sve županije</span>
+              <span class="county-count-badge" id="countySelectedCount" style="display:none;">0</span>
+              <i class="fa-solid fa-chevron-down arrow-icon"></i>
+            </button>
+
+            <!-- County Multi-Select Dropdown Menu -->
+            <div id="countyDropdownMenu" class="dropdown-menu county-menu" style="display: none;">
+              <div class="dropdown-header">
+                <strong>Odaberi županije za pretragu</strong>
+                <span class="text-muted">Možeš odabrati više odjednom</span>
+              </div>
+
+              <!-- Quick action presets -->
+              <div class="county-presets">
+                <button type="button" class="preset-btn" id="btnSelectAllCounties">Odaberi sve</button>
+                <button type="button" class="preset-btn" id="btnClearCounties">Poništi sve</button>
+                <button type="button" class="preset-btn" data-preset="zagreb">Zagreb i okolica</button>
+                <button type="button" class="preset-btn" data-preset="jadran">Jadran / More</button>
+                <button type="button" class="preset-btn" data-preset="slavonija">Slavonija</button>
+              </div>
+
+              <div class="county-list-grid" id="countyCheckboxes">
+                <!-- Injected via JavaScript -->
+              </div>
+
+              <div class="dropdown-footer">
+                <button type="button" class="btn btn-primary btn-sm" id="applyCountiesBtn">Primijeni odabir</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sort Select -->
+          <div class="sort-wrapper">
+            <label for="sortSelect" class="sort-label"><i class="fa-solid fa-arrow-down-short-wide"></i> Sortiraj:</label>
+            <select id="sortSelect" class="select-control">
+              <option value="deadline_asc">Rok jamčevine (najhitnije prvo)</option>
+              <option value="price_asc">Cijena: od najniže</option>
+              <option value="price_desc">Cijena: od najviše</option>
+              <option value="deadline_desc">Rok jamčevine (najviše vremena)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Property Types Chips -->
+        <div class="filter-row-types">
+          <span class="types-label">Vrsta nekretnine:</span>
+          <div class="type-chips" id="typeChips">
+            <button class="type-chip active" data-type="all">Sve vrste</button>
+            <button class="type-chip" data-type="Stan"><i class="fa-solid fa-building"></i> Stanovi</button>
+            <button class="type-chip" data-type="Kuća"><i class="fa-solid fa-house"></i> Kuće</button>
+            <button class="type-chip" data-type="Zemljište"><i class="fa-solid fa-tree"></i> Zemljišta</button>
+            <button class="type-chip" data-type="Poslovni prostor"><i class="fa-solid fa-briefcase"></i> Poslovni prostori</button>
+            <button class="type-chip" data-type="Garaža"><i class="fa-solid fa-warehouse"></i> Garaže</button>
+          </div>
+        </div>
+
+        <!-- Active Filters Bar (Selected County Tags, etc.) -->
+        <div class="active-tags-bar" id="activeTagsBar" style="display: none;">
+          <span class="active-tags-title">Aktivni filteri:</span>
+          <div class="active-tags-list" id="activeTagsList"></div>
+          <button class="btn-clear-all" id="resetAllFiltersBtn">Ukloni sve filtere</button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- Results Stats Header -->
+      <div class="results-header">
+        <h2 class="results-title" id="resultsTitle">
+          Aktivne dražbe <span class="results-counter" id="resultsCounter">(0)</span>
+        </h2>
+        <div class="results-view-options">
+          <span id="activeFiltersSummary" class="text-muted text-small"></span>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="state-message" style="display: none;">
+        <div class="spinner"></div>
+        <h3>Učitavanje dražbi...</h3>
+        <p>Preuzimamo i provjeravamo aktivne oglase s FINA poslužitelja.</p>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="state-message" style="display: none;">
+        <div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+        <h3 id="emptyTitle">Nema pronađenih dražbi</h3>
+        <p id="emptySubtitle">Pokušaj prilagoditi filtere ili očistiti pretragu.</p>
+        <button id="resetFromEmptyBtn" class="btn btn-primary" style="margin-top: 15px;">Prikaži sve dražbe</button>
+      </div>
+
+      <!-- Empty Favorites State -->
+      <div id="emptyFavoritesState" class="state-message" style="display: none;">
+        <div class="empty-icon text-fav"><i class="fa-regular fa-star"></i></div>
+        <h3>Još nemaš omiljenih oglasa</h3>
+        <p>Klikni na ikonu <strong>srca</strong> ili <strong>zvjezdice</strong> na bilo kojem oglasu kako bi ga spremio za kasniji brzi pregled.</p>
+        <button id="browseFromFavBtn" class="btn btn-primary" style="margin-top: 15px;">Pregledaj sve aktivne dražbe</button>
+      </div>
+
+      <!-- Listings Grid -->
+      <div class="listings-grid" id="listingsGrid">
+        <!-- Listings cards injected via JavaScript -->
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="detailModal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-header-info">
+          <div class="modal-badges" id="modalBadges"></div>
+          <h2 class="modal-title" id="modalTitle">Detalji predmeta prodaje</h2>
+          <p class="modal-subtitle" id="modalSubtitle"></p>
+        </div>
+        <div class="modal-header-actions">
+          <button class="btn-fav-large" id="modalFavBtn" title="Označi kao omiljeno">
+            <i class="fa-regular fa-star"></i>
+            <span>Spremi oglas</span>
+          </button>
+          <button class="modal-close-btn" id="modalCloseBtn" title="Zatvori">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body" id="modalBody">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <div class="modal-footer">
+        <div class="modal-footer-left">
+          <span class="legal-badge" id="modalCourtBadge"><i class="fa-solid fa-landmark"></i> Sud</span>
+        </div>
+        <div class="modal-footer-right">
+          <a href="#" target="_blank" class="btn btn-outline" id="modalPismenaLink">
+            <i class="fa-solid fa-file-contract"></i> Sudska pismena
+          </a>
+          <a href="#" target="_blank" class="btn btn-primary" id="modalFinaLink">
+            <i class="fa-solid fa-external-link"></i> Otvori službeni FINA oglas
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="container footer-content">
+      <p><strong>FINA Dražbe Plus</strong> • Nezavisni pametni preglednik javnih dražbi i Očevidnika nekretnina.</p>
+      <p class="text-muted text-small">Svi podaci automatski se preuzimaju sa službenih stranica Financijske agencije (FINA - ponip.fina.hr). Oglasi kojima je istekao rok za uplatu jamčevine automatski su uklonjeni.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

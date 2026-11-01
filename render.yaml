@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: fina-drazbe-plus
+    env: ruby
+    buildCommand: "bundle install"
+    startCommand: "bundle exec ruby server.rb"
+    plan: free

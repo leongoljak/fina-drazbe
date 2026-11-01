@@ -1,0 +1,36 @@
+{
+  "last_updated_at": "01.11.2026. 13:23",
+  "total_count": 390,
+  "counties": {
+    "Grad Zagreb": 44,
+    "Istarska": 38,
+    "Osječko-baranjska": 30,
+    "Zagrebačka": 30,
+    "Bjelovarsko-bilogorska": 28,
+    "Virovitičko-podravska": 25,
+    "Primorsko-goranska": 23,
+    "Varaždinska": 22,
+    "Splitsko-dalmatinska": 21,
+    "Sisačko-moslavačka": 18,
+    "Međimurska": 18,
+    "Vukovarsko-srijemska": 18,
+    "Požeško-slavonska": 13,
+    "Šibensko-kninska": 10,
+    "Koprivničko-križevačka": 9,
+    "Krapinsko-zagorska": 9,
+    "Zadarska": 8,
+    "Brodsko-posavska": 8,
+    "Ostalo / Nepoznato": 5,
+    "Dubrovačko-neretvanska": 5,
+    "Ličko-senjska": 4,
+    "Karlovačka": 4
+  },
+  "types": {
+    "Zemljište": 201,
+    "Stan": 73,
+    "Kuća": 73,
+    "Poslovni prostor": 25,
+    "Ostalo": 15,
+    "Garaža": 3
+  }
+}
